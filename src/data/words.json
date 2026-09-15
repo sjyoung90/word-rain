@@ -1,0 +1,16 @@
+{
+  "name": "Basic English",
+  "description": "MVP 기본 영단어 셋 — 짧은/중간/긴 단어 혼합",
+  "words": [
+    "cat", "dog", "sun", "moon", "star", "fish", "bird", "tree", "book", "milk",
+    "rain", "snow", "fire", "wind", "leaf", "rock", "sand", "bell", "cake", "song",
+    "apple", "bread", "chair", "cloud", "dance", "dream", "earth", "flame", "grape", "happy",
+    "juice", "knife", "light", "mango", "night", "ocean", "peace", "queen", "river", "smile",
+    "table", "under", "voice", "water", "young", "zebra", "beach", "candy", "eagle", "flower",
+    "guitar", "hammer", "island", "jungle", "kitten", "ladder", "monkey", "nature", "orange", "planet",
+    "quiet", "rocket", "silver", "tiger", "umbrella", "violin", "window", "yellow", "banana", "coffee",
+    "diamond", "elephant", "feather", "garland", "harmony", "iceberg", "journey", "keyboard", "lantern", "mountain",
+    "notebook", "olympic", "penguin", "quantum", "rainbow", "sandwich", "telescope", "universe", "volcano", "waterfall",
+    "adventure", "beautiful", "chocolate", "dangerous", "education", "fantastic", "gymnastics", "happiness", "important", "knowledge"
+  ]
+}
