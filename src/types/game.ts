@@ -20,6 +20,6 @@ export type GameState = {
 };
 
 export const INITIAL_LIVES = 3;
-export const MAX_CONCURRENT_WORDS = 5;
+export const MAX_CONCURRENT_WORDS = 4;
 export const PLAYFIELD_HEIGHT = 600;
 export const PLAYFIELD_WIDTH = 800;

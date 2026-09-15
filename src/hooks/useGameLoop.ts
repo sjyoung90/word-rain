@@ -12,8 +12,18 @@ import {
 } from "@/types/game";
 
 const WORDS: string[] = wordData.words;
-const SPAWN_INTERVAL_MS = 1500;
+const SPAWN_INTERVAL_MS = 2000;
 const MAX_DELTA_MS = 100;
+const BASE_SPEED = 0.03;
+const MAX_SPEED_BOOST = 0.15;
+const SPEED_RAMP_MS = 120_000;
+
+function currentMaxConcurrent(elapsedMs: number): number {
+  if (elapsedMs < 300) return 1;
+  if (elapsedMs < 6_000) return 2;
+  if (elapsedMs < 14_000) return 3;
+  return MAX_CONCURRENT_WORDS;
+}
 
 type Action =
   | { type: "TICK"; deltaMs: number }
@@ -31,15 +41,25 @@ const initialState: GameState = {
   buffer: "",
 };
 
-function randomWord(elapsedMs: number): FallingWord {
-  const text = WORDS[Math.floor(Math.random() * WORDS.length)];
-  const speedBoost = Math.min(elapsedMs / 60_000, 1) * 0.15;
+function pickWord(elapsedMs: number, exclude: Set<string>): string {
+  const progress = Math.min(elapsedMs / SPEED_RAMP_MS, 1);
+  const maxLength = Math.floor(4 + progress * 6);
+  const byLength = WORDS.filter((w) => w.length <= maxLength && !exclude.has(w));
+  if (byLength.length > 0) return byLength[Math.floor(Math.random() * byLength.length)];
+  const anyUnused = WORDS.filter((w) => !exclude.has(w));
+  const source = anyUnused.length > 0 ? anyUnused : WORDS;
+  return source[Math.floor(Math.random() * source.length)];
+}
+
+function randomWord(elapsedMs: number, exclude: Set<string>): FallingWord {
+  const text = pickWord(elapsedMs, exclude);
+  const speedBoost = Math.min(elapsedMs / SPEED_RAMP_MS, 1) * MAX_SPEED_BOOST;
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     text,
     x: Math.random() * (PLAYFIELD_WIDTH - 100) + 50,
     y: 0,
-    speed: 0.05 + speedBoost,
+    speed: BASE_SPEED + speedBoost,
     typedCount: 0,
   };
 }
@@ -74,10 +94,12 @@ function reducer(state: GameState, action: Action): GameState {
     }
 
     case "SPAWN": {
-      if (state.words.length >= MAX_CONCURRENT_WORDS) return state;
+      const cap = currentMaxConcurrent(state.elapsedMs);
+      if (state.words.length >= cap) return state;
+      const onScreen = new Set(state.words.map((w) => w.text));
       return {
         ...state,
-        words: [...state.words, randomWord(state.elapsedMs)],
+        words: [...state.words, randomWord(state.elapsedMs, onScreen)],
       };
     }
 
@@ -143,7 +165,7 @@ export function useGameLoop(onGameOver: (score: number) => void) {
 
   useEffect(() => {
     lastTimeRef.current = performance.now();
-    lastSpawnRef.current = performance.now();
+    lastSpawnRef.current = performance.now() - SPAWN_INTERVAL_MS;
 
     const loop = (now: number) => {
       if (phaseRef.current === "gameOver") return;
